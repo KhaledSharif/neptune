@@ -1,0 +1,60 @@
+# ===========================================================================
+# Do not modify
+# ===========================================================================
+- hosts: all
+  tasks:
+    - name: ensure l4t_dfs.conf is correct
+      become: yes
+      copy:
+        src: ./l4t_dfs.conf
+        dest: /root/l4t_dfs.conf
+
+    - name: set jetson power mode to 0
+      become: yes
+      shell: /usr/sbin/nvpmodel -m 0
+
+    - name: run jetson clocks & turn on fan
+      become: yes
+      shell: jetson_clocks
+
+    - name: copy logger to jetson home directory
+      copy:
+        src: ./jetson_logger.py
+        dest: /home/jetson/jetson_logger.py
+
+    - name: run jetson logger in the background
+      shell: "python3 /home/jetson/jetson_logger.py --mutex /tmp/jetson_logger_mutex_{{ ansible_date_time.epoch }} > /tmp/jetson_logger_stdout_{{ ansible_date_time.epoch }}"
+      become: yes
+      async: 1000000000
+      poll: 0
+      register: jetson_logger
+
+    - name: run all tasks found in the neptune workflow yaml file
+      include_tasks: "{{ lookup('env', 'NEPTUNE_WORKFLOW') }}"
+
+    - name: add mutex
+      file: 
+        path: "/tmp/jetson_logger_mutex_{{ ansible_date_time.epoch }}"
+        state: touch
+
+    - name: fetch logs
+      fetch:
+        flat: yes
+        dest: "./{{ inventory_hostname }}/{{ ansible_date_time.epoch }}/logs.csv"
+        src: "/tmp/jetson_logger_stdout_{{ ansible_date_time.epoch }}"
+
+    - name: remove mutex 
+      become: yes
+      file:
+        path: "/tmp/jetson_logger_mutex_{{ ansible_date_time.epoch }}"
+        state: absent
+
+    - name: remove logs 
+      become: yes
+      file:
+        path: "/tmp/jetson_logger_stdout_{{ ansible_date_time.epoch }}"
+        state: absent
+
+    - name: restore old jetson clock settings, turn off fan
+      become: yes
+      shell: jetson_clocks --restore

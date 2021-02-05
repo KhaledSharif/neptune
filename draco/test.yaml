@@ -1,0 +1,38 @@
+# ===========================================================================
+# Run Draco on the Jetson system
+# https://github.com/google/draco/blob/master/BUILDING.md
+# ===========================================================================
+
+- name: remove old log
+  file:
+    path: /tmp/neptune_log.txt
+    state: absent
+
+- name: run draco encoder on a point cloud file
+  shell: /home/jetson/draco/build/draco_encoder -i /home/jetson/model.ply -o /home/jetson/model.drc -cl 10 > /tmp/neptune_log.txt 2>&1
+  async: 1000000000
+  poll: 0
+  register: async_job
+
+- name: cat neptune log text file
+  shell: cat /tmp/neptune_log.txt
+  register: cat_result
+
+- debug:
+    msg: "{{ cat_result.stdout }}"
+
+- name: wait for asynchronous job to end
+  async_status:
+    jid: '{{ async_job.ansible_job_id }}'
+  register: job_result
+  until: job_result.finished
+  retries: 1000000000
+  delay: 1
+
+- name: print async job variable
+  debug: 
+    msg: "{{ async_job }}"
+
+- name: print job result variable
+  debug: 
+    msg: "{{ job_result }}"

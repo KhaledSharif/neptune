@@ -1,0 +1,56 @@
+# ===========================================================================
+# Provision the Jetson system to run Draco
+# https://github.com/google/draco/blob/master/BUILDING.md
+# ===========================================================================
+
+- name: get the latest version of cmake
+  get_url:
+    url: https://github.com/Kitware/CMake/releases/download/v3.19.4/cmake-3.19.4-Linux-aarch64.tar.gz
+    dest: /home/jetson/cmake-3.19.4-Linux-aarch64.tar.gz
+
+- name: make a directory for cmake in home directory
+  file:
+    path: /home/jetson/cmake-3.19.4
+    state: directory
+
+- name: extract cmake from tar.gz file
+  unarchive:
+    src: /home/jetson/cmake-3.19.4-Linux-aarch64.tar.gz
+    dest: /home/jetson/cmake-3.19.4
+    remote_src: yes
+
+- name: clone github repo
+  git:
+    repo: https://github.com/google/draco.git
+    dest: /home/jetson/draco
+    recursive: yes
+
+- name: create build directory
+  file:
+    state: directory
+    path: /home/jetson/draco/build
+
+- name: run cmake
+  become: yes
+  shell: /home/jetson/cmake-3.19.4/cmake-3.19.4-Linux-aarch64/bin/cmake ../
+  args:
+    chdir: /home/jetson/draco/build
+  register: cmake_output
+
+- debug: msg="{{ cmake_output.stdout }}"
+
+- debug: msg="{{ cmake_output.stderr }}"
+
+- name: run make
+  async: 1000000000
+  poll: 1
+  become: yes
+  shell: make
+  args:
+    chdir: /home/jetson/draco/build
+  register: make_output
+
+- debug: msg="{{ make_output.stdout }}"
+
+- debug: msg="{{ make_output.stderr }}"
+

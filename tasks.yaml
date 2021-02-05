@@ -1,0 +1,11 @@
+# ===========================================================================
+# Modify to your liking
+# ===========================================================================
+- name: echo current date and time
+  shell: echo $(date)
+
+- name: list python pip packages
+  shell: pip3 list
+
+- name: sleep 2 seconds
+  shell: sleep 2
