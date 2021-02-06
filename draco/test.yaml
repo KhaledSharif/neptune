@@ -9,7 +9,7 @@
     state: absent
 
 - name: run draco encoder on a point cloud file
-  shell: /home/jetson/draco/build/draco_encoder -i /home/jetson/model.ply -o /home/jetson/model.drc -cl 10 > /tmp/neptune_log.txt 2>&1
+  shell: ~/draco/build/draco_encoder -i ~/bunny.ply -o ~/bunny.drc -cl 10 > /tmp/neptune_log.txt 2>&1
   async: 1000000000
   poll: 0
   register: async_job

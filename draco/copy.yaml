@@ -5,4 +5,4 @@
 - name: copy uncompressed mesh file to jetson
   copy:
     src: ./bunny.ply
-    dest: /home/jetson/model.ply
+    dest: ~/bunny.ply

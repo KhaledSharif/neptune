@@ -2,9 +2,15 @@
 
 set -e
 
-if [ "$#" -ne 1 ]; then
-    echo "You must enter exactly 1 command line arguments"
-    exit 1
-fi
+while getopts u:n:p: flag
+do
+    case "${flag}" in
+        u) username=${OPTARG};;
+        n) hostname=${OPTARG};;
+        p) playbook=${OPTARG};;
+    esac
+done
 
-NEPTUNE_WORKFLOW=$1 ANSIBLE_STDOUT_CALLBACK=yaml ansible-playbook -i ./hosts -u jetson ./playbook.yaml
+echo $hostname > /tmp/ansible_hosts
+
+NEPTUNE_WORKFLOW=$playbook ANSIBLE_STDOUT_CALLBACK=yaml ansible-playbook -i /tmp/ansible_hosts -u $username ./playbook.yaml

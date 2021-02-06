@@ -17,13 +17,14 @@
       become: yes
       shell: jetson_clocks
 
-    - name: copy logger to jetson home directory
+    - name: copy logger to jetson temp directory
       copy:
         src: ./jetson_logger.py
-        dest: /home/jetson/jetson_logger.py
+        dest: /tmp/jetson_logger.py
+        mode: '0777'
 
     - name: run jetson logger in the background
-      shell: "python3 /home/jetson/jetson_logger.py --mutex /tmp/jetson_logger_mutex_{{ ansible_date_time.epoch }} > /tmp/jetson_logger_stdout_{{ ansible_date_time.epoch }}"
+      shell: "python3 /tmp/jetson_logger.py --mutex /tmp/jetson_logger_mutex_{{ ansible_date_time.epoch }} > /tmp/jetson_logger_stdout_{{ ansible_date_time.epoch }}"
       become: yes
       async: 1000000000
       poll: 0
