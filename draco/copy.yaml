@@ -1,8 +1,0 @@
-# ===========================================================================
-# Copy mesh to Jetson system
-# ===========================================================================
-
-- name: copy uncompressed mesh file to jetson
-  copy:
-    src: ./bunny.ply
-    dest: ~/bunny.ply

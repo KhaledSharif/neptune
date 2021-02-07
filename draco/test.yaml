@@ -3,6 +3,11 @@
 # https://github.com/google/draco/blob/master/BUILDING.md
 # ===========================================================================
 
+- name: copy uncompressed mesh file to jetson
+  copy:
+    src: ./bunny.ply
+    dest: ~/bunny.ply
+
 - name: remove old log
   file:
     path: /tmp/neptune_log.txt
