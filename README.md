@@ -31,6 +31,11 @@
 - shell: sleep 10
 ```
 
+```bash
+echo "- shell: sleep 10" > ./example.yaml
+./execute.sh -u jetson -n 192.168.1.118 -p ./example.yaml
+```
+
 ## How to run
 
 Provision the Jetson machine by downloading the latest `cmake`, then cloning and building `draco`.
